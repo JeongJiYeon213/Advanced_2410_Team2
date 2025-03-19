@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Customer Read</title>
+</head>
+<body>
+<div th:fragment="selectedCustomer">
+    <div class="card">
+        <div class="card-header">
+            상세정보
+        </div>
+        <div class="card-body">
+            <div class="input-group mb-3">
+                <span class="input-group-text">ID</span>
+                <input type="text" class="form-control" th:value="${selectedCustomer.customerId}"  readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">고객명</span>
+                <input type="text" class="form-control" th:value="${selectedCustomer.customerName}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">전화번호</span>
+                <input type="text" class="form-control" th:value="${selectedCustomer.customerInfo}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">등록일</span>
+                <input type="text" class="form-control" th:value="${#temporals.format(selectedCustomer.regDate, 'yyyy-MM-dd')}" readonly disabled>
+            </div>
+
+            <div class="my-4">
+                <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
+                    <a th:href="|@{/mes/customer/list}?${link}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-outline-dark">목록</button>
+                    </a>
+                    <a th:href="|@{/mes/customer/list(selectedCustomerId=${selectedCustomer.customerId}, modifyMode=true)}&${pageRequestDTO.getLink()}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-outline-dark">수정/삭제</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

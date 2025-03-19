@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+
+<div layout:fragment="content">
+    <!-- 검색 화면 ui -->
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <form action="/mes/supplier/list" method="get">
+                        <div class="row gx-3 gy-2 align-items-center">
+                            <div class="col">
+                                <input type="hidden" name="size" th:value="${pageRequestDTO.size}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <select class="form-select" name="type">
+                                            <option value="">검색</option>
+                                            <option value="i" th:selected="${pageRequestDTO.type =='i'}">ID</option>
+                                            <option value="n" th:selected="${pageRequestDTO.type =='n'}">거래처명</option>
+                                            <option value="f" th:selected="${pageRequestDTO.type =='f'}">전화번호</option>
+                                        </select>
+                                    </div>
+                                    <input type="text" class="form-control" name="keyword" th:value="${pageRequestDTO.keyword}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary searchBtn" type="submit">검색</button>
+                                        <button class="btn btn-outline-secondary clearBtn" type="button">초기화</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    거래처관리
+                </div>
+                <div class="card-body">
+                    <!-- 게시물 목록 데이터 -->
+                    <table class="table table-bordered">
+                        <thead class="table">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">거래처명</th>
+                            <th scope="col">전화번호</th>
+                            <th scope="col">등록일</th>
+                        </tr>
+                        </thead>
+
+                        <tbody th:with="link = ${pageRequestDTO.getLink()}">
+                        <tr th:each="selectedSupplier:${responseDTO.dtoList}">
+                            <td>
+                                <a th:href="|@{/mes/supplier/list(selectedSupplierId =${selectedSupplier.SupplierId})}&${link}|"
+                                   style="text-decoration: none">[[${selectedSupplier.supplierId}]]</a>
+                            </td>
+                            <td>[[${selectedSupplier.supplierName}]]</td>
+                            <td>[[${selectedSupplier.supplierInfo}]]</td>
+                            <td>[[${#temporals.format(selectedSupplier.regDate, 'yyyy-MM-dd')}]]</td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 선택한 제품 상세 정보 -->
+
+        <div class="col-6" th:if="${selectedSupplier}">
+            <div th:if="${modifyMode}">
+                <div th:insert="~{mes/supplier/modify :: selectedSupplier}"></div>
+            </div>
+            <div th:unless="${modifyMode}">
+                <div th:insert="~{mes/supplier/read :: selectedSupplier}"></div>
+            </div>
+        </div>
+
+        <!-- 등록 폼 -->
+        <div class="col-6" th:if="${registerMode}">
+            <div th:insert="~{mes/supplier/register :: register}"></div>
+        </div>
+
+    </div>
+
+    <br>
+    <div class="float-start">
+        <button class="btn btn-dark register" type="button"
+                onclick="location.href='/mes/supplier/list?registerMode=true'">등록</button>
+
+        <a href="/excel/supplier/download" class="btn btn-success">엑셀다운로드</a>
+    </div>
+
+    <div class="float-end">
+        <ul class="pagination flex-wrap">
+            <li class="page-item" th:if="${responseDTO.prev}" style="cursor: pointer;">
+                <a class="page-link" th:data-num="${responseDTO.start - 1}"
+                   style="background-color: black !important; color: white !important;">이전</a>
+            </li>
+            <th:block th:each="i : ${#numbers.sequence(responseDTO.start, responseDTO.end)}">
+                <li th:class="${responseDTO.page == i} ? 'page-item active' : 'page-item'" style="cursor: pointer;">
+                    <a class="page-link" th:data-num="${i}">[[${i}]]</a>
+                </li>
+            </th:block>
+            <li class="page-item" th:if="${responseDTO.next}" style="cursor: pointer;">
+                <a class="page-link" th:data-num="${responseDTO.end + 1}"
+                   style="background-color: black !important; color: white !important;">다음</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+// 메뉴 토글
+window.addEventListener('DOMContentLoaded', event => {
+const sidebarToggle = document.body.querySelector('#sidebarToggle');
+if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', event => {
+        event.preventDefault();
+        document.body.classList.toggle('sb-sidenav-toggled');
+        localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
+        });
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // 초기화 버튼
+    document.querySelector(".clearBtn").addEventListener("click", function (e){
+       e.preventDefault()
+       e.stopPropagation()
+
+       self.location ='/mes/supplier/list'
+    },false);
+
+    // 등록 버튼
+    document.querySelector(".register").addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        self.location = '/mes/supplier/list?registerMode=true';
+    }, false);
+
+    // 삭제 버튼
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("removeBtn")){
+            e.preventDefault();
+            if (!confirm("정말 삭제하시겠습니까?")){
+                return;
+            }
+
+            const supplierId = e.target.getAttribute("data-supplier-id");
+
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/mes/supplier/remove";
+            form.style.display = "none";
+
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "supplierId";
+            input.value = supplierId;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+            }
+        });
+
+    // 페이지 이동
+    document.querySelector(".pagination").addEventListener("click", function (e) {
+        if (e.target.tagName !== 'A') return;
+        e.preventDefault();
+
+        const num = e.target.getAttribute("data-num");
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", num);
+
+        const selectedSupplierId = params.get("selectedSupplierId");
+        if (selectedSupplierId) {
+            params.set("selectedSupplierId", selectedSupplierId);
+        }
+
+        window.location.href = `/mes/supplier/list?${params.toString()}`;
+    });
+ });
+</script>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>제품 등록</title>
+</head>
+<body>
+<div th:fragment="register">
+    <div class="card">
+        <div class="card-header">
+            제품 등록
+        </div>
+        <div class="card-body">
+            <form action="/mes/register" method="post">
+                <div class="input-group mb-3">
+                    <input type="hidden" name="bno" class="form-control" >
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">사원 번호</span>
+                    <input type="text" name="adminId" class="form-control" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">사원 이름</span>
+                    <input type="text" name="adminName" class="form-control" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">비밀번호</span>
+                    <input type="number" name="adminPassword" min="0" class="form-control" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">전화번호</span>
+                    <input type="text" name="phoneNum" class="form-control">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">직급</span>
+                    <input type="text" name="position" class="form-control">
+                </div>
+                <div class="my-4">
+                    <div class="float-end">
+                        <button type="submit" class="btn btn-dark">등록</button>
+                        <a href="/mes/adminpage" class="btn btn-secondary">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

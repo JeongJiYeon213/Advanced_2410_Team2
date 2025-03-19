@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="register">
+    <div class="card">
+        <div class="card-header">
+            거래처 등록
+        </div>
+        <div class="card-body">
+            <form action="/mes/supplier/register"  method="post">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">ID</span>
+                    <input type="text" class="form-control" name="supplierId" readonly value="COMPANY-">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">거래처명</span>
+                    <input type="text" class="form-control" name="supplierName">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">전화번호</span>
+                    <input type="text" class="form-control" name="supplierInfo">
+                </div>
+                <div class="my-4">
+                    <div class="float-end">
+                        <button type="reset" onclick="location.href='/mes/supplier/list'" class="btn btn-outline-dark">목록</button>
+                        <button type="submit" class="btn btn-outline-dark">등록</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

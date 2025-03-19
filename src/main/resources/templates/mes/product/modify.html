@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>제품 상세</title>
+</head>
+<body>
+<div th:fragment="selectedProduct">
+    <div class="card">
+        <div class="card-header">제품 상세정보</div>
+        <div class="card-body">
+            <form th:action="@{/mes/product/modify}" method="post" id="modifyForm">
+                <input type="hidden" name="productId" th:value="${selectedProduct.productId}">
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">제품코드</span>
+                    <input type="text" class="form-control" name="productCode" th:value="${selectedProduct.productCode}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">제품명</span>
+                    <input type="text" class="form-control" name="productName" th:value="${selectedProduct.productName}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">제품타입</span>
+                    <input type="text" class="form-control" name="productType" th:value="${selectedProduct.productType}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">무게</span>
+                    <input type="number" class="form-control" name="productWeight" th:value="${selectedProduct.productWeight}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">크기</span>
+                    <input type="text" class="form-control" name="productSize" th:value="${selectedProduct.productSize}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">등록일</span>
+                    <input type="text" class="form-control"
+                           th:value="${#temporals.format(selectedProduct.regDate, 'yyyy-MM-dd HH:mm:ss')}" readonly>
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">수정일</span>
+                    <input type="text" class="form-control"
+                           th:value="${#temporals.format(selectedProduct.modDate, 'yyyy-MM-dd HH:mm:ss')}" readonly>
+                </div>
+                <div class="my-4">
+                    <div class="float-end">
+                        <button type="button" class="btn btn-secondary listBtn">목록</button>
+                        <button type="submit" class="btn btn-dark">수정</button>
+                        <button type="button" class="btn btn-danger removeBtn">삭제</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>
+
+</body>
+</html>

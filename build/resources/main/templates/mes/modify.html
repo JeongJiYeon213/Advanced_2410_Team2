@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>사원 수정</title>
+</head>
+<body>
+<div th:fragment="selectedAdmin">
+    <div class="card">
+        <div class="card-header">사원 상세정보</div>
+        <div class="card-body">
+            <form th:action="@{/mes/modify}" method="post" id="modifyForm">
+                <input type="hidden" name="bno" th:value="${selectedAdmin.bno}">
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">사원번호</span>
+                    <input type="text" class="form-control" name="adminId" th:value="${selectedAdmin.adminId}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">사원이름</span>
+                    <input type="text" class="form-control" name="adminName" th:value="${selectedAdmin.adminName}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">비밀번호</span>
+                    <input type="text" class="form-control" name="adminPassword" th:value="${selectedAdmin.adminPassword}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">전화번호</span>
+                    <input type="text" class="form-control" name="phoneNum" th:value="${selectedAdmin.phoneNum}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">직급</span>
+                    <input type="text" class="form-control" name="position" th:value="${selectedAdmin.position}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">등록일</span>
+                    <input type="text" class="form-control" th:value="${#temporals.format(selectedAdmin.regDate, 'yyyy-MM-dd HH:mm:ss')}" readonly>
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">수정일</span>
+                    <input type="text" class="form-control" th:value="${#temporals.format(selectedAdmin.modDate, 'yyyy-MM-dd HH:mm:ss')}" readonly>
+                </div>
+
+                <div class="my-4">
+                    <div>
+                        <button type="button" class="btn btn-secondary listBtn">목록</button>
+                        <button type="submit" class="btn btn-dark modBtn">수정</button>
+                        <button type="button" class="btn btn-danger removeBtn">삭제</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+
+</script>
+
+</body>
+</html>

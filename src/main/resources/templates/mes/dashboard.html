@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Advance_2410_Team2</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/assets/favicon.ico}" />
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <style>
+        #page-content-wrapper {
+        background-image: url('/image/jogang.png');
+        background-size: cover;      /* 배경 이미지를 화면 크기에 맞게 확대 */
+        background-position: center; /* 배경 이미지가 중앙에 위치하도록 설정 */
+        background-repeat: no-repeat; /* 배경 이미지 반복을 방지 */
+        min-height: 100vh;           /* 화면 전체 높이로 설정 */
+        }
+    </style>
+</head>
+<body>
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar-->
+    <div class="border-end bg-white" id="sidebar-wrapper">
+        <div class="sidebar-heading border-bottom bg-light"><a href="/mes/dashboard">MES</a></div>
+        <div class="namebar">&nbsp;&nbsp;&nbsp;<span th:text="${session.adminName}"></span>님 /
+            <span th:text="${session.position}"></span></div>
+        <div class="list-group list-group-flush">
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/mes/inbound/list">입고관리</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/mes/outbound/list">출고관리</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/mes/stock/list">재고관리</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/mes/product/list">제품관리</a>
+        </div>
+    </div>
+
+    <div id="page-content-wrapper">
+        <!-- Top navigation-->
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" id="sidebarToggle">메뉴</a>
+                <a class="navbar-brand" href="/mes/supplier/list">거래처</a>
+                <a class="navbar-brand" href="/mes/customer/list" >고객</a>
+                <a class="navbar-brand" href="/mes/adminpage">관리자</a>
+                <!-- 로그아웃 버튼 -->
+                <form class="d-flex" action="/mes/logout">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">로그아웃</button>
+                </form>
+            </div>
+        </nav>
+        <!-- 페이지 내용-->
+        <div class="container-fluid">
+            <!-- 세션 확인 및 로그인 상태 체크 -->
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                if (![[${session.adminId}]]) {
+                    window.location.href = "/mes/login"; // 세션에 admin이 없으면 로그인 페이지로 리다이렉트
+                }
+                /*]]>*/
+            </script>
+
+            <div class="container">
+                <div class="row row-cols-2">
+                    <div class="col">
+                        <button id="generateLottoBtn" class="btn btn-dark">로또 번호 추첨</button>
+                        <div id="lottoResults"></div>
+                    </div>
+                    <div class="col">
+                        <button id="generateFortuneBtn" class="btn btn-secondary">오늘의 운세</button>
+                        <div id="fortuneResult" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/scripts.js}"></script>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+   // 세션이 없을 경우 로그인 페이지로 리디렉션
+   if (![[${session.adminId}]]) {
+   window.location.href = "/mes/login";
+   }
+   /*]]>*/
+
+   // 로또 번호 추첨 함수
+   function generateLottoNumbers() {
+       const lottoNumbers = [];
+       while (lottoNumbers.length < 6) {
+           let number = Math.floor(Math.random() * 45) + 1;
+           if (!lottoNumbers.includes(number)) {
+               lottoNumbers.push(number);
+           }
+       }
+       lottoNumbers.sort((a, b) => a - b); // 번호를 오름차순으로 정렬
+       return lottoNumbers;
+   }
+
+   // 5게임의 로또 번호를 생성하여 HTML에 표시
+   function generateMultipleLottoGames() {
+       let resultsHTML = '';
+       for (let i = 0; i < 5; i++) {
+           const lottoNumbers = generateLottoNumbers();
+           resultsHTML += `
+               <div class="lotto-card">
+                   <div>
+                       <div class="lotto-header">게임 ${i + 1}</div>
+                       <div class="lotto-numbers">
+                           ${lottoNumbers.map(num => `<span>${num}</span>`).join(' ')}
+                       </div>
+                   </div>
+                   <!-- 손가락 이미지 추가 -->
+                   <img src="/image/lottofinger.jpg" class="finger" />
+               </div>
+           `;
+       }
+       return resultsHTML;
+   }
+
+   // 오늘의 운세 배열
+   const fortunes = [
+        '로또 추첨으로 로또 사는건 어때요?',
+           '오늘은 로또 추첨 쉬어가요',
+           '오늘은 운이 매우 좋은 날일 것 같네요!',
+           '오늘은 새로운 시작을 위한 완벽한 날입니다',
+           '주위 사람들에게 좋은 에너지를 전파할 수 있습니다',
+           '행운이 당신을 따라올 것입니다',
+           '문제 해결의 실마리를 찾게 될 것입니다',
+           '기대 이상의 결과를 얻을 수 있습니다',
+           '친구나 가족과 즐거운 시간을 보낼 수 있는 기회가 생길 것입니다',
+           '금전적 여유가 생길 가능성이 높습니다',
+           '지금까지의 노력들이 결실을 맺는 시기입니다',
+           '모든 일이 순조롭게 풀릴 것입니다',
+           '누군가의 도움을 받아 좋은 방향으로 나아갈 수 있습니다',
+           '오랜 고민이 끝나고 마음의 평화를 찾을 수 있습니다',
+           '오늘은 자신에게 투자하는 날',
+           '새로운 기회를 얻게 될 가능성이 있습니다',
+           '미래에 대한 불안감이 사라지고 확신을 가질 수 있을 것입니다',
+           '긍정적인 마인드로 어떤 어려움도 극복할 수 있습니다',
+           '오늘은 무언가 잘못될 가능성이 있으니 조심하세요',
+           '지금은 큰 결정을 내리지 않는 것이 좋습니다',
+           '오늘은 피로가 쌓여있을 수 있으니 충분한 휴식이 필요합니다',
+           '주위의 사람들과 갈등이 생길 수 있으니 신중하게 행동하세요',
+           '금전적으로 약간의 어려움이 있을 수 있습니다',
+           '자신감을 잃지 않도록 노력해야 할 날입니다',
+           '어떤 문제에 부딪힐 수 있으니 차분하게 대처하세요',
+           '불필요한 논쟁이나 충돌을 피하는 것이 좋습니다',
+           '상대방의 말에 쉽게 상처받지 않도록 주의하세요',
+           '오늘은 스트레스를 받을 가능성이 높으니 긴장을 풀어보세요',
+           '예상치 못한 문제가 발생할 수 있으니 미리 대비하세요',
+           '급한 결정을 내리지 않는 것이 유리한 날입니다',
+           '오늘은 과도한 생각을 피하고 간단히 행동하는 것이 좋습니다',
+           '이번 로또는 기대에 미치지 못할 것입니다.'
+   ];
+
+   // 운세 랜덤으로 선택하는 함수
+   function getRandomFortune() {
+       const randomIndex = Math.floor(Math.random() * fortunes.length);
+       return fortunes[randomIndex];
+   }
+
+   // 버튼 클릭 시 로또 번호 생성 및 결과 표시
+   document.getElementById('generateLottoBtn').addEventListener('click', function() {
+       const lottoResultsDiv = document.getElementById('lottoResults');
+       lottoResultsDiv.innerHTML = generateMultipleLottoGames();
+   });
+
+   // 오늘의 운세 버튼 클릭 시 운세 표시
+   document.getElementById('generateFortuneBtn').addEventListener('click', function() {
+       const fortuneResultDiv = document.getElementById('fortuneResult');
+       fortuneResultDiv.innerHTML = `<h5>오늘의 운세: ${getRandomFortune()}</h5>`;
+   });
+</script>
+</body>
+</html>

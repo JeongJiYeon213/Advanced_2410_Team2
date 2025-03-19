@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/basic.html}">
+
+<head>
+    <title>Register</title>
+</head>
+
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h2>등록</h2>
+                    <button class="btn btn-dark mb-3" id="addRowBtn">행 추가</button>
+                    <button class="btn btn-danger mb-3" id="removeRowBtn">행 삭제</button>
+                    <div class="row mb-2">
+                        <div class="col-2">제품번호</div>
+                        <div class="col-2">고객</div>
+                        <div class="col-2">수량</div>
+                        <div class="col-2">출고일</div>
+                        <div class="col-2">상태</div>
+                        <div class="col-2">기타</div>
+                    </div>
+                </div>
+                <!-- 행을 추가할 영역 -->
+                <div class="card-body">
+                    <form id="registerForm" action="/mes/outbound/register" method="post">
+                        <div id="rowContainer">
+                            <div class="row mb-2">
+                                <div class="col-2 d-flex">
+                                    <input type="text" name="productCode" class="form-control" required readonly>
+                                    <button type="button" class="btn btn-outline-primary" style="white-space: nowrap; width: 60px;" onclick="openProductPopup(this);">검색</button>
+                                </div>
+                                <div class="col-2 d-flex">
+                                    <input type="text" name="customerId" class="form-control" required readonly>
+                                    <button type="button" class="btn btn-outline-secondary" style="white-space: nowrap; width: 60px;" onclick="openCustomerPopup(this);">검색</button>
+                                </div>
+                                <div class="col-2">
+                                    <input type="number" name="quantity" value="0" class="form-control" readonly>
+                                </div>
+                                <div class="col-2">
+                                    <input type="datetime-local" name="outboundDate" value="${currentDate}" class="form-control" readonly>
+                                </div>
+                                <div class="col-2">
+                                    <select name="outboundStatus" class="form-select">
+                                        <option value="PENDING">PENDING</option>
+                                        <option value="COMPLETED">COMPLETED</option>
+                                        <option value="CANCELED">CANCELED</option>
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <input type="text" name="description" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="float-end">
+                            <a th:href="|@{/mes/outbound/list}|" class="btn btn-list">
+                                <button type="button" class="btn btn-success">
+                                    목록
+                                </button>
+                            </a>
+                            <button type="submit" class="btn btn-dark">등록</button>
+                            <button type="reset" class="btn btn-secondary">초기화</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script layout:fragment="script" th:inline="javascript">
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+     event.preventDefault();
+
+     // 모든 행을 검사하여 productCode와 customerId 비어있는지 확인
+     var rows = document.querySelectorAll('#rowContainer .row');
+     var valid = true;
+     rows.forEach(function(row) {
+         var productCode = row.querySelector('[name="productCode"]').value;
+         var customerId = row.querySelector('[name="customerId"]').value;
+         if (!productCode || !customerId) {
+             valid = false;
+             alert('제품번호와 고객는 필수 항목입니다.');
+             return;
+         }
+     });
+
+     if (!valid) {
+         return;
+     }
+
+     alert('수량과 입고일을 상세정보에서 수정하세요.');
+     this.submit();
+ });
+ // 초기화 버튼 눌렀을 때 동작 수정
+     document.querySelector('button[type="reset"]').addEventListener('click', function(event) {
+         // 기본 초기화 동작을 막음
+         event.preventDefault();
+
+         // 모든 필드 초기화 (입고일 제외)
+         var form = document.getElementById('registerForm');
+         var inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="datetime-local"], input[type="text"], select');
+
+         // 모든 필드 초기화
+         inputs.forEach(function(input) {
+             // 입고일은 제외하고 초기화
+             if (input.name !== 'outboundDate' && input.name !== 'quantity') {
+                 input.value = '';
+             }
+         });
+
+         // 선택된 상태를 초기화할 경우 추가 (선택 필드)
+         var selectFields = form.querySelectorAll('select');
+         selectFields.forEach(function(select) {
+             select.selectedIndex = 0;
+         });
+     });
+// 현재 날짜와 시간을 datetime-local 형식으로 설정하는 함수
+document.addEventListener('DOMContentLoaded', function() {
+var outboundDateField = document.querySelector('input[name="outboundDate"]');
+
+// 서버에서 전달된 currentDate 값이 없으면 JavaScript로 기본값 설정
+if (!outboundDateField.value) {
+    outboundDateField.value = getCurrentDateTimeLocal();
+}
+});
+function getCurrentDateTimeLocal() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// 처음 로드 시 첫 번째 행의 날짜와 수량을 설정
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('input[name="outboundDates"]').value = getCurrentDateTimeLocal();
+    document.querySelector('input[name="quantities"]').value = 0;
+});
+
+
+// 버튼 클릭 시 새로운 행을 추가
+document.getElementById('addRowBtn').addEventListener('click', function() {
+    var rowContainer = document.getElementById('rowContainer');
+
+    // 새로운 행을 추가
+    var newRow = document.createElement('div');
+    newRow.classList.add('row', 'mb-2');
+    newRow.innerHTML = `
+    <div class="col-2 d-flex">
+       <input type="text" id="productCode" name="productCode" class="form-control" readonly>
+       <button type="button" class="btn btn-outline-primary" style="white-space: nowrap; width: 60px;" onclick="openProductPopup(this);">검색</button>
+   </div>
+   <div class="col-2 d-flex">
+       <input type="text" id="customerId" name="customerId" class="form-control" required readonly>
+           <button type="button" class="btn btn-outline-secondary" style="white-space: nowrap; width: 60px;" onclick="openCustomerPopup(this);">검색</button>
+   </div>
+   <div class="col-2">
+   <input type="number" name="quantity" class="form-control" value="0" readonly>
+   </div>
+   <div class="col-2"><input type="datetime-local" name="outboundDate" value="${getCurrentDateTimeLocal()}" class="form-control" readonly></div>
+   <div class="col-2">
+       <select id="outboundStatus" name="outboundStatus" class="form-select">
+           <option value="PENDING">PENDING</option>
+           <option value="COMPLETED">COMPLETED</option>
+           <option value="CANCELED">CANCELED</option>
+       </select>
+   </div>
+   <div class="col-2">
+       <input type="text" name="description" class="form-control" placeholder="Write here" required>
+   </div>
+ `;
+    rowContainer.appendChild(newRow);
+});
+
+document.getElementById('removeRowBtn').addEventListener('click', function() {
+    var rowContainer = document.getElementById('rowContainer');
+    if (rowContainer.children.length > 0) {
+        rowContainer.removeChild(rowContainer.lastElementChild);
+    }
+});
+
+
+// product popup code 가져오기
+function openProductPopup(button) {
+    let row = button.closest('.row'); // 클릭한 버튼이 포함된 행을 찾음
+    let productCodeField = row.querySelector('[name="productCode"]');
+    let popup = open("/mes/product/searchPopup", "Product Search", "width=600,height=400");
+
+    // 팝업에서 데이터를 받아오는 이벤트 처리
+    addEventListener("message", function(event) {
+        if (event.origin !== location.origin) return;
+
+        const productData = event.data;
+        if (productData && productData.productCode) {
+            productCodeField.value = productData.productCode;
+        }
+    }, {
+        once: true
+    });
+}
+
+function openCustomerPopup(button) {
+    let row = button.closest('.row'); // 클릭한 버튼이 포함된 행을 찾음
+    let customerIdField = row.querySelector('[name="customerId"]');
+    let popup = open("/mes/customer/searchPopup", "Customer Search", "width=600,height=400");
+
+    // 팝업에서 데이터를 받아오는 이벤트 처리
+    addEventListener("message", function(event) {
+        if (event.origin !== location.origin) return;
+
+        const customerData = event.data;
+        if (customerData && customerData.customerId) {
+            customerIdField.value = customerData.customerId;
+        }
+    }, {
+        once: true
+    });
+}
+</script>
+</html>

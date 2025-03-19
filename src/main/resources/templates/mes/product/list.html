@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/basic.html}">
+
+<div layout:fragment="content">
+
+    <div class="row mt-3">
+        <!-- 제품 목록 -->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">제품관리</div>
+                <div class="card-body">
+                    <!-- 검색 폼 -->
+                    <form method="get" action="/mes/product/list">
+                        <input type="hidden" name="size" th:value="${pageRequestDTO.size}">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <select class="form-select" name="type">
+                                    <option value="n" th:selected="${pageRequestDTO.type == 'n'}">제품명</option>
+                                    <option value="c" th:selected="${pageRequestDTO.type == 'c'}">제품코드</option>
+                                </select>
+                            </div>
+                            <input type="text" class="form-control" name="keyword" th:value="${pageRequestDTO.keyword}">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary searchBtn" type="submit">검색</button>
+                                <button class="btn btn-outline-secondary clearBtn" type="button">초기화</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <br>
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">제품코드</th>
+                            <th scope="col">제품명</th>
+                            <th scope="col">제품타입</th>
+                            <th scope="col">무게</th>
+                            <th scope="col">크기</th>
+                        </tr>
+                        </thead>
+                        <tbody th:with="link = ${pageRequestDTO.getLink()}">
+                        <tr th:each="dto : ${responseDTO.dtoList}">
+                            <td>
+                                <a th:href="|@{/mes/product/list(selectedProductId=${dto.productId})}&${link}|"
+                                   style="text-decoration: none">[[${dto.productCode}]]</a>
+                            </td>
+                            <td>[[${dto.productName}]]</td>
+                            <td>[[${dto.productType}]]</td>
+                            <td>[[${dto.productWeight}]]</td>
+                            <td>[[${dto.productSize}]]</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 선택한 제품 상세 정보 -->
+        <div class="col-6" th:if="${selectedProduct}">
+            <div th:if="${modifyMode}">
+                <div th:insert="~{mes/product/modify :: selectedProduct}"></div>
+            </div>
+            <div th:unless="${modifyMode}">
+                <div th:insert="~{mes/product/read :: selectedProduct}"></div>
+            </div>
+        </div>
+
+        <!-- 등록 폼 -->
+        <div class="col-6" th:if="${registerMode}">
+            <div th:insert="~{mes/product/register :: register}"></div>
+        </div>
+    </div>
+
+    <!-- 하단 버튼 -->
+    <br>
+    <div class="float-start">
+        <button class="btn btn-dark register" type="button">등록</button>
+        <a href="/excel/product/download" class="btn btn-success">엑셀다운로드</a>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="float-end">
+        <ul class="pagination flex-wrap">
+            <li class="page-item" th:if="${responseDTO.prev}" style="cursor: pointer;">
+                <a class="page-link" th:data-num="${responseDTO.start - 1}">이전</a>
+            </li>
+            <th:block th:each="i : ${#numbers.sequence(responseDTO.start, responseDTO.end)}">
+                <li th:class="${responseDTO.page == i} ? 'page-item active' : 'page-item'" style="cursor: pointer;">
+                    <a class="page-link" th:data-num="${i}">[[${i}]]</a>
+                </li>
+            </th:block>
+            <li class="page-item" th:if="${responseDTO.next}" style="cursor: pointer;">
+                <a class="page-link" th:data-num="${responseDTO.end + 1}">다음</a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+
+
+<script layout:fragment="script" th:inline="javascript">
+
+    /*<![CDATA[*/
+   // 세션이 없을 경우 로그인 페이지로 리디렉션
+   if (![[${session.adminId}]]) {
+       window.location.href = "/mes/login";
+   }
+/*]]>*/
+
+   document.addEventListener("DOMContentLoaded", function () {
+       // 등록 버튼
+       document.querySelector(".register").addEventListener("click", function () {
+           window.location.href = '/mes/product/list?registerMode=true';
+       });
+
+       // 검색 초기화 버튼
+       document.querySelector(".clearBtn").addEventListener("click", function () {
+           window.location.href = '/mes/product/list';
+       });
+
+       // 페이지 이동
+       document.querySelector(".pagination").addEventListener("click", function (e) {
+           if (e.target.tagName !== 'A') return;
+           e.preventDefault();
+
+           const num = e.target.getAttribute("data-num");
+           const params = new URLSearchParams(window.location.search);
+           params.set("page", num);
+
+           const selectedProductId = params.get("selectedProductId");
+           if (selectedProductId) {
+               params.set("selectedProductId", selectedProductId);
+           }
+
+           window.location.href = `/mes/product/list?${params.toString()}`;
+       });
+
+       // 삭제 버튼 이벤트 (동적으로 존재할 수도 있기 때문에 `document.addEventListener` 사용)
+       document.addEventListener("click", function (e) {
+           if (e.target.classList.contains("removeBtn")) {
+               e.preventDefault();
+               if (!confirm("정말 삭제하시겠습니까?")) {
+                   return;
+               }
+
+               const productId = document.querySelector("input[name='productId']").value;
+               const form = document.createElement("form");
+               form.method = "POST";
+               form.action = "/mes/product/remove";
+               form.style.display = "none";
+
+               const input = document.createElement("input");
+               input.type = "hidden";
+               input.name = "productId";
+               input.value = productId;
+
+               form.appendChild(input);
+               document.body.appendChild(form);
+               form.submit();
+           }
+       });
+   });
+</script>
+
+</html>

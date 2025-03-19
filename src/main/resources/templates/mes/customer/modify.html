@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Customer Modify</title>
+</head>
+<body>
+<div th:fragment="selectedCustomer">
+    <div class="card">
+        <div class="card-header">
+            정보변경
+        </div>
+        <div class="card-body">
+            <form th:action="@{/mes/customer/modify}" method="post" id="modifyForm">
+                <input type="hidden" name="customerId" th:value="${selectedCustomer.customerId}">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">ID</span>
+                    <input type="text" class="form-control" name=CustomerId th:value="${selectedCustomer.customerId}">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">고객명</span>
+                    <input type="text" class="form-control" name=CustomerName
+                           th:value="${selectedCustomer.customerName}">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">전화번호</span>
+                    <input type="text" class="form-control" name=CustomerInfo
+                           th:value="${selectedCustomer.customerInfo}">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">등록일</span>
+                    <input type="text" class="form-control" th:value="${#temporals.format(selectedCustomer.regDate, 'yyyy-MM-dd')}" readonly disabled>
+                </div>
+                <div class="my-4">
+                    <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
+                        <a th:href="|@{/mes/customer/list}?${link}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-secondary listBtn">목록</button>
+                        </a>
+                        <button type="submit" class="btn btn-dark">수정</button>
+                        <button type="button" class="btn btn-danger removeBtn"
+                                th:attr="data-customer-id=${selectedCustomer.customerId}">삭제</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

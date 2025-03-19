@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>재고 등록</title>
+</head>
+<body>
+<div th:fragment="register">
+  <div class="card">
+    <div class="card-header">
+      재고 등록
+    </div>
+    <div class="card-body">
+      <form th:action="@{/mes/stock/register}" method="post">
+        <div class="input-group mb-3">
+          <span class="input-group-text">제품 선택</span>
+          <select name="productId" class="form-select">
+            <option th:each="product : ${productList}"
+                    th:value="${product.productId}"
+                    th:text="|${product.productCode} / ${product.productName}|">
+            </option>
+          </select>
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">현재 재고</span>
+          <input type="number" name="currentStock" class="form-control" placeholder="예: 100">
+        </div>
+        <div class="my-4">
+          <div class="float-end">
+            <button type="submit" class="btn btn-dark">등록</button>
+            <a th:href="@{/mes/stock/list}" class="btn btn-secondary">취소</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

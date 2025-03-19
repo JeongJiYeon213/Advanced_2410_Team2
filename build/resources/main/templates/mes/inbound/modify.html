@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>입고 관리</title>
+</head>
+<body>
+<div th:fragment="selectedInbound">
+    <div class="card">
+        <div class="card-header">
+            상세정보
+        </div>
+        <div class="card-body">
+            <form th:action="@{/mes/inbound/modify}" method="post" id="modifyForm">
+                <input type="hidden" name="inboundId" th:value="${selectedInbound.inboundId}">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">입고번호</span>
+                    <input type="text"
+                           class="form-control"
+                           th:value="${selectedInbound.inboundCode}"
+                           id="inboundCode"
+                           name="inboundCode"
+                           readonly>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">제품번호</span>
+                    <input type="text"
+                           id="productCode"
+                           name="productCode"
+                           class="form-control" th:value="${selectedInbound.productCode}" readonly>
+                    <button type="button" class="btn btn-outline-primary" onclick="openProductPopup();">Search</button>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">거래처</span>
+                    <input type="text"
+                           class="form-control"
+                           th:value="${selectedInbound.supplierId}"
+                           id="supplierId"
+                           name="supplierId" readonly>
+                    <button type="button" class="btn btn-outline-secondary" onclick="openSupplierPopup();">Search</button>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">수량</span>
+                    <input type="number"
+                           min="0"
+                           class="form-control"
+                           th:value="${selectedInbound.quantity}"
+                           id="quantity"
+                           name="quantity">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">입고일</span>
+                    <input type="datetime-local"
+                           name="inboundDate"
+                           class="form-control"
+                           id="inboundDate"
+                           th:value="${#temporals.format(selectedInbound.inboundDate, 'yyyy-MM-dd HH:mm:ss')}"
+                    >
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">상태</span>
+                    <select id="inboundStatus" name="inboundStatus">
+                        <option value="PENDING">PENDING</option>
+                        <option value="COMPLETED">COMPLETED</option>
+                        <option value="CANCELED">CANCELED</option>
+                    </select>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">기타</span>
+                    <input type="text"
+                           class="form-control"
+                           th:value="${selectedInbound.description}"
+                           name="description">
+                </div>
+                <div class="my-4">
+                    <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
+                        <a th:href="|@{/mes/inbound/list}?${link}|" class="text-decoration-none">
+                            <button type="button" class="btn btn-dark">목록</button>
+                        </a>
+                        <button type="submit" class="btn btn-dark">수정</button>
+                        <button type="button" class="btn btn-danger removeBtn">삭제</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+    const errors = [[${errors}]]
+    console.log(errors)
+
+    let errorMsg = ''
+
+    if(errors){
+        for (let i = 0; i < errors.length; i++) {
+            errorMsg += `${errors[i].field}은(는) ${errors[i].code} \n`
+        }
+        history.replaceState({}, null, null)
+        alert(errorMsg)
+    }
+
+
+    const formObj = document.querySelector("#modify")
+
+    // 수정
+    document.querySelector(".modBtn").addEventListener("click", function(e){
+                 e.preventDefault()
+                 e.stopPropagation()
+                 formObj.action =`/mes/inbound/modify`
+                 formObj.method ="post"
+                 formObj.submit()
+             },false);
+    // 삭제
+    document.querySelector(".removeBtn").addEventListener("click", function(e){
+                 e.preventDefault()
+                 e.stopPropagation()
+
+                 const link = [[${pageRequestDTO.getLink()}]];
+
+              // 히든 인풋 필드 추가하여 링크 값을 포함시킴
+              const hiddenInput = document.createElement('input');
+              hiddenInput.type = 'hidden';
+              hiddenInput.name = 'link';
+              hiddenInput.value = link;
+              formObj.appendChild(hiddenInput);
+
+                 formObj.action =`/mes/inbound/remove`
+                 formObj.method ="post"
+                 formObj.submit();
+             },false);
+
+    // 리스트로 돌아가기
+    document.querySelector(".listBtn").addEventListener("click", function(e){
+                 e.preventDefault()
+                 e.stopPropagation()
+                 formObj.reset()
+                 self.location = `/mes/inbound/list?${link}`
+             },false);
+
+    // product popup code 가져오기
+    function openProductPopup() {
+        let popup = open("/mes/product/searchPopup", "Product Search", "width=600,height=400");
+
+        // 팝업에서 데이터를 받아오는 이벤트 처리
+        addEventListener("message", function(event) {
+            if (event.origin !== location.origin) return;
+
+            const productData = event.data;
+            if (productData && productData.productCode) {
+                document.getElementById("productCode").value = productData.productCode; // 팝업에서 선택한 productCode를 input 필드에 채워줌
+            }
+        }, false);
+    }
+
+    // supplier popup id 가져오기
+    function openSupplierPopup() {
+        let popup = open("/mes/supplier/searchPopup", "Supplier Search", "width=600,height=400");
+
+        // 팝업에서 데이터를 받아오는 이벤트 처리
+        addEventListener("message", function(event) {
+            if (event.origin !== location.origin) return;
+
+            const supplierData = event.data;
+            if (supplierData && supplierData.supplierId) {
+                document.getElementById("supplierId").value = supplierData.supplierId; // 팝업에서 선택한 productCode를 input 필드에 채워줌
+            }
+        }, false);
+    }
+   });
+</script>
+</html>

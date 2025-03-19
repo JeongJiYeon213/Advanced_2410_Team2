@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/basic.html}">
+
+<div layout:fragment="content">
+
+ <div class="row mt-3">
+  <!-- 제품 목록 -->
+  <div class="col-6">
+   <div class="card">
+    <div class="card-header">
+     제품관리
+    </div>
+    <div class="card-body">
+     <table class="table">
+      <thead>
+      <form>
+       <div class="col">
+        <input type="hidden" name="size" th:value="${pageRequestDTO.size}">
+        <div class="input-group">
+         <div class="input-group-prepend">
+          <select class="form-select" name="type">
+           <option value="t" th:selected="${pageRequestDTO.type == 't'}">사원이름</option>
+          </select>
+         </div>
+         <input type="text" class="form-control" name="keyword" th:value="${pageRequestDTO.keyword}">
+         <div class="input-group-append">
+          <button class="btn btn-outline-secondary searchBtn" type="submit">검색</button>
+          <button class="btn btn-outline-secondary clearBtn" type="button">초기화</button>
+         </div>
+        </div>
+       </div>
+      </form>
+      <br>
+      <tr>
+       <th scope="col">bno</th>
+       <th scope="col">사원번호</th>
+       <th scope="col">사원이름</th>
+       <th scope="col">직급</th>
+      </tr>
+      </thead>
+      <tbody th:with="link = ${pageRequestDTO.getLink()}">
+      <tr th:each="dto : ${responseDTO.dtoList}">
+       <td>
+        <a th:href="|/mes/adminpage?selectedAdminBno=${dto.bno}&${link}|"
+           style="text-decoration: none">[[${dto.bno}]]</a>
+       </td>
+       <td>[[${dto.adminId}]]</td>
+       <td>[[${dto.adminName}]]</td>
+       <td>[[${dto.position}]]</td>
+      </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+
+  <!-- 선택한 제품 상세 정보 -->
+  <div class="col-6" th:if="${selectedAdmin}">
+   <div th:if="${modifyMode}">
+    <div th:insert="~{mes/modify :: selectedAdmin}"></div>
+   </div>
+   <div th:unless="${modifyMode}">
+    <div th:insert="~{mes/read :: selectedAdmin}"></div>
+   </div>
+  </div>
+
+  <!-- 등록 폼 -->
+  <div class="col-6" th:if="${registerMode}">
+   <div th:insert="~{mes/register :: register}"></div>
+  </div>
+
+ </div>
+
+ <!-- Paging UI -->
+ <br>
+ <div class="float-start">
+  <button class="btn btn-dark register" type="button"
+          onclick="location.href='/mes/adminpage?registerMode=true'">등록</button>
+
+  <a href="/excel/admin/download" class="btn btn-success">엑셀다운로드</a>
+ </div>
+
+ <div class="float-end">
+  <ul class="pagination flex-wrap">
+   <li class="page-item" th:if="${responseDTO.prev}" style="cursor: pointer;">
+    <a th:class="page-link" th:data-num="${responseDTO.start - 1}"
+       style="background-color: black !important; color: white !important;">이전</a>
+   </li>
+   <th:block th:each="i : ${#numbers.sequence(responseDTO.start, responseDTO.end)}">
+    <li th:class="${responseDTO.page == i} ? 'page-item active' : 'page-item'" style="cursor: pointer;">
+     <a th:class="page-link" th:data-num="${i}">[[${i}]]</a>
+    </li>
+   </th:block>
+   <li class="page-item" th:if="${responseDTO.next}" style="cursor: pointer;">
+    <a th:class="page-link" th:data-num="${responseDTO.end + 1}"
+       style="background-color: black !important; color: white !important;">다음</a>
+   </li>
+  </ul>
+ </div>
+
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+ /*<![CDATA[*/
+     // 세션이 없을 경우 로그인 페이지로 리디렉션
+     if (![[${session.adminId}]]) {
+         window.location.href = "/mes/login";
+     }
+ /*]]>*/
+
+// DOMContentLoaded 이벤트로 모든 스크립트가 로드된 후 실행
+document.addEventListener("DOMContentLoaded", function() {
+
+    // 삭제 버튼 클릭 시 POST 요청 보내기
+    document.querySelector(".removeBtn")?.addEventListener("click", function() {
+        if (!confirm("정말 삭제하시겠습니까?")) {
+            return;
+        }
+
+        // 폼 생성 후 제출 (POST 요청)
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = "/mes/remove";
+
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "bno";
+        input.value = document.querySelector("[name='bno']").value;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    });
+
+    // 등록 버튼 클릭 시 '등록' 페이지로 이동
+    document.querySelector(".register").addEventListener("click", function(e) {
+        e.preventDefault();
+        self.location = '/mes/adminpage?registerMode=true';
+    }, false);
+
+    // 초기화 버튼 클릭 시 페이지 리로드
+    document.querySelector(".clearBtn").addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        self.location = '/mes/adminpage';
+    }, false);
+
+    // 페이지네이션 클릭 이벤트 처리
+    document.querySelector(".pagination").addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const target = e.target;
+        if (target.tagName !== 'A') {
+            return;
+        }
+
+        const num = target.getAttribute("data-num");
+
+        // 현재 URL의 쿼리스트링 가져오기
+        const params = new URLSearchParams(window.location.search);
+
+        // 페이지 번호 업데이트
+        params.set("page", num);
+
+        // 현재 선택된 제품 ID 유지
+        const selectedAdminBno = params.get("selectedAdminBno");
+        if (selectedAdminBno) {
+            params.set("selectedAdminBno", selectedAdminBno);
+        }
+
+        // 새로운 URL로 이동
+        window.location.href = `/mes/adminpage?${params.toString()}`;
+    });
+
+    // 리스트 버튼 클릭 시 'adminpage'로 이동
+    document.querySelector(".listBtn")?.addEventListener("click", function(e) {
+        e.preventDefault();
+        self.location = '/mes/adminpage';
+    });
+});
+</script>
+
+</html>

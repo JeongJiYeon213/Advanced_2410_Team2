@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>제품 등록</title>
+</head>
+
+<body>
+<div th:fragment="selectedOutbound">
+    <div class="card">
+        <div class="card-header">
+            상세정보
+        </div>
+        <div class="card-body">
+            <input type="hidden" name="selectedProductId" th:value="${selectedOutbound.outboundId}">
+            <div class="input-group mb-3">
+                <span class="input-group-text">출고번호</span>
+                <input type="text" class="form-control" th:value="${selectedOutbound.outboundCode}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">제품번호</span>
+                <input type="text" class="form-control" th:value="${selectedOutbound.productCode}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">고객</span>
+                <input type="text" class="form-control" th:value="${selectedOutbound.customerId}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">수량</span>
+                <input type="number" class="form-control" th:value="${selectedOutbound.quantity}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">출고일</span>
+                <input type="datetime-local" class="form-control" th:value="${#temporals.format(selectedOutbound.outboundDate, 'yyyy-MM-dd HH:mm:ss')}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">상태</span>
+                <input type="text" class="form-control" th:value="${selectedOutbound.outboundStatus}" readonly disabled>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">기타</span>
+                <input type="text" class="form-control" th:value="${selectedOutbound.description}" readonly disabled>
+            </div>
+            <div class="my-4">
+                <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
+                    <a th:href="|@{/mes/outbound/list}?${link}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-dark">목록</button>
+                    </a>
+                    <a th:href="|@{/mes/outbound/list(selectedOutboundId=${selectedOutbound.outboundId}, modifyMode=true)}&${pageRequestDTO.getLink()}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-secondary">수정/삭제</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

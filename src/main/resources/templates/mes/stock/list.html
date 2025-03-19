@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/basic.html}">
+
+<div layout:fragment="content">
+
+  <div class="row mt-3">
+    <!-- 재고 목록 -->
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header">
+          재고관리
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <thead>
+            <form>
+              <div class="col">
+                <input type="hidden" name="size" th:value="${pageRequestDTO.size}">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <select class="form-select" name="type">
+                      <option value="p" th:selected="${pageRequestDTO.type == 'p'}">제품명</option>
+                      <option value="c" th:selected="${pageRequestDTO.type == 'c'}">제품코드</option>
+                    </select>
+                  </div>
+                  <input type="text" class="form-control" name="keyword" th:value="${pageRequestDTO.keyword}">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary searchBtn" type="submit">검색</button>
+                    <button class="btn btn-outline-secondary clearBtn" type="button">초기화</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <br>
+            <tr>
+              <th scope="col">제품코드</th>
+              <th scope="col">현재 재고</th>
+
+
+            </tr>
+            </thead>
+            <tbody th:with="link = ${pageRequestDTO.getLink()}">
+            <tr th:each="dto : ${responseDTO.dtoList}">
+              <td>
+                <a th:href="|@{/mes/stock/list(selectedStockId=${dto.stockId})}&${link}|"
+                   style="text-decoration: none">[[${dto.productCode}]]</a>
+              </td>
+              <td>[[${dto.currentStock}]]</td>
+
+
+
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 선택한 재고 상세 정보 -->
+    <div class="col-6" th:if="${selectedStock}">
+      <div th:if="${modifyMode}">
+        <div th:insert="~{mes/stock/modify :: selectedStock}"></div>
+      </div>
+      <div th:unless="${modifyMode}">
+        <div th:insert="~{mes/stock/read :: selectedStock}"></div>
+      </div>
+    </div>
+
+    <!-- 등록 폼 -->
+    <div class="col-6" th:if="${registerMode}">
+      <div th:insert="~{mes/stock/register :: register}"></div>
+    </div>
+  </div>
+
+  <!-- Paging UI -->
+  <br>
+  <div class="float-start">
+    <a href="/excel/stock/download" class="btn btn-success">엑셀다운로드</a>
+  </div>
+
+  <div class="float-end">
+    <ul class="pagination flex-wrap">
+      <li class="page-item" th:if="${responseDTO.prev}" style="cursor: pointer;">
+        <a class="page-link" th:data-num="${responseDTO.start - 1}">이전</a>
+      </li>
+      <th:block th:each="i : ${#numbers.sequence(responseDTO.start, responseDTO.end)}">
+        <li th:class="${responseDTO.page == i} ? 'page-item active' : 'page-item'" style="cursor: pointer;">
+          <a class="page-link" th:data-num="${i}">[[${i}]]</a>
+        </li>
+      </th:block>
+      <li class="page-item" th:if="${responseDTO.next}" style="cursor: pointer;">
+        <a class="page-link" th:data-num="${responseDTO.end + 1}">다음</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+
+
+
+
+
+  document.querySelector(".clearBtn").addEventListener("click", function(e){
+      e.preventDefault();
+      window.location.href = '/mes/stock/list';
+  });
+
+  document.querySelector(".pagination").addEventListener("click", function(e) {
+    e.preventDefault();
+    const target = e.target;
+    if (target.tagName !== 'A') return;
+
+    const num = target.getAttribute("data-num");
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", num);
+
+    const selectedStockId = params.get("selectedStockId");
+    if (selectedStockId) {
+        params.set("selectedStockId", selectedStockId);
+    }
+
+    window.location.href = `/mes/stock/list?${params.toString()}`;
+});
+
+</script>
+
+</html>

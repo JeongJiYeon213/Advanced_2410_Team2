@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Customer Register</title>
+</head>
+<body>
+<div th:fragment="register">
+    <div class="card">
+        <div class="card-header">
+            고객 등록
+        </div>
+        <div class="card-body">
+            <form id="registerForm" action="/mes/customer/register" method="post">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">ID</span>
+                    <input type="text" class="form-control" name="customerId" readonly value="CUST" />
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">고객명</span>
+                    <input type="text" class="form-control" name="customerName" required />
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">전화번호</span>
+                    <input type="text" class="form-control" name="customerInfo" required />
+                </div>
+
+                <div class="my-4">
+                    <div class="float-end">
+                        <button type="button" onclick="location.href='/mes/customer/list'" class="btn btn-outline-dark">목록</button>
+                        <button type="submit" class="btn btn-outline-dark">등록</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

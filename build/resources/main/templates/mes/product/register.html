@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>제품 등록</title>
+</head>
+<body>
+<div th:fragment="register">
+    <div class="card">
+        <div class="card-header">
+            제품 등록
+        </div>
+        <div class="card-body">
+            <form action="/mes/product/register" method="post">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">제품코드</span>
+                    <input type="text" name="productCode" class="form-control" placeholder="예: S001">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">제품명</span>
+                    <input type="text" name="productName" class="form-control" placeholder="예: Sample">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">제품타입</span>
+                    <input type="text" name="productType" class="form-control" placeholder="예: steel">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">무게</span>
+                    <input type="number" name="productWeight" class="form-control" placeholder="예: 1000g">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">크기</span>
+                    <input type="text" name="productSize" class="form-control" placeholder="예: 2m x 5m">
+                </div>
+                <div class="my-4">
+                    <div class="float-end">
+                        <button type="submit" class="btn btn-dark">등록</button>
+                        <a href="/mes/product/list" class="btn btn-secondary">취소</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

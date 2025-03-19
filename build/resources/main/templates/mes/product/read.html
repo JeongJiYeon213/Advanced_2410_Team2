@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>제품 상세정보</title>
+</head>
+<body>
+<div th:fragment="selectedProduct">
+    <div class="card">
+        <div class="card-header">
+            상세정보
+        </div>
+        <div class="card-body">
+            <input type="hidden" name="selectedProductId" th:value="${selectedProduct.productId}">
+            <div class="input-group mb-3">
+                <span class="input-group-text">제품코드</span>
+                <input type="text" class="form-control" th:value="${selectedProduct.productCode}" readonly disabled>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">제품명</span>
+                <input type="text" class="form-control" th:value="${selectedProduct.productName}" readonly disabled>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">제품타입</span>
+                <input type="text" class="form-control" th:value="${selectedProduct.productType}" readonly disabled>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">무게</span>
+                <input type="number" class="form-control" th:value="${selectedProduct.productWeight}" readonly disabled>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">크기</span>
+                <input type="text" class="form-control" th:value="${selectedProduct.productSize}" readonly disabled>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">제품 등록일</span>
+                <input type="text" class="form-control"
+                       th:value="${#temporals.format(selectedProduct.regDate, 'yyyy-MM-dd HH:mm:ss')}" readonly disabled>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">제품 수정일</span>
+                <input type="text" class="form-control"
+                       th:value="${#temporals.format(selectedProduct.modDate, 'yyyy-MM-dd HH:mm:ss')}" readonly disabled>
+            </div>
+
+            <div class="my-4">
+                <div class="float-start">
+                    <a th:href="@{/mes/stock/list(selectedStockId=${selectedProduct.productId}, page=${param.page}, size=${param.size})}" class="text-decoration-none">
+                    <button type="button" class="btn btn-dark">입고/출고</button>
+                    </a>
+                </div>
+
+                <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
+                    <a th:href="|@{/mes/product/list}?${link}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-dark">목록</button>
+                    </a>
+                    <a th:href="|@{/mes/product/list(selectedProductId=${selectedProduct.productId}, modifyMode=true)}&${pageRequestDTO.getLink()}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-secondary">수정/삭제</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
